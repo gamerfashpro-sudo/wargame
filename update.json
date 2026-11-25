@@ -1,7 +1,0 @@
-{
-  "version": "0.6.7",
-  "file": "app-0.6.7.asar",
-  "sha256": "0d95be845aead6b848aa4c19e21f42aab42e34d5bb1559f29070b0d188f587e0",
-  "notes": "Распознавание только английское",
-  "baseMin": 1
-}
