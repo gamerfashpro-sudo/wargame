@@ -1,0 +1,183 @@
+{
+  "root": "MBT_Main",
+  "objects": [
+    {
+      "name": "MBT_Main",
+      "type": "EMPTY",
+      "parent": null
+    },
+    {
+      "name": "Hull",
+      "type": "MESH",
+      "parent": "MBT_Main",
+      "tris": 252
+    },
+    {
+      "name": "Details",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 836
+    },
+    {
+      "name": "Exhaust_L",
+      "type": "EMPTY",
+      "parent": "Hull"
+    },
+    {
+      "name": "Exhaust_R",
+      "type": "EMPTY",
+      "parent": "Hull"
+    },
+    {
+      "name": "Left_Tracks",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 576
+    },
+    {
+      "name": "Right_Tracks",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 576
+    },
+    {
+      "name": "Turret",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 184
+    },
+    {
+      "name": "Main_Gun",
+      "type": "MESH",
+      "parent": "Turret",
+      "tris": 200
+    },
+    {
+      "name": "Muzzle",
+      "type": "EMPTY",
+      "parent": "Main_Gun"
+    },
+    {
+      "name": "Optics_Glass",
+      "type": "MESH",
+      "parent": "Turret",
+      "tris": 24
+    },
+    {
+      "name": "TeamColor",
+      "type": "MESH",
+      "parent": "Turret",
+      "tris": 24
+    },
+    {
+      "name": "Turret_Details",
+      "type": "MESH",
+      "parent": "Turret",
+      "tris": 516
+    },
+    {
+      "name": "Wheel_L_01",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_02",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_03",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_04",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_05",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_06",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_Idler",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_L_Sprocket",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_01",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_02",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_03",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_04",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_05",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_06",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_Idler",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    },
+    {
+      "name": "Wheel_R_Sprocket",
+      "type": "MESH",
+      "parent": "Hull",
+      "tris": 164
+    }
+  ],
+  "tris_total": 5812,
+  "problems": [],
+  "bounds_m": [
+    3.73,
+    11.165,
+    3.72
+  ],
+  "min_z": 0.0
+}
