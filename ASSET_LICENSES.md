@@ -16,4 +16,5 @@
 
 | Ассет | Тип | Источник | Ссылка | Автор | Лицензия | Коммерция | Атрибуция | Где используется |
 |---|---|---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — | — | Пока нет сторонних ассетов |
+| Russo One | Шрифт | Google Fonts | https://github.com/google/fonts/tree/main/ofl/russoone | Jovanny Lemonad | SIL OFL 1.1 | Да | Желательна (в Credits) | `Assets/_Project/Resources/Fonts/RussoOne-Regular.ttf` — заголовки |
+| PT Sans | Шрифт | Google Fonts | https://github.com/google/fonts/tree/main/ofl/ptsans | ParaType | SIL OFL 1.1 | Да | Желательна (в Credits) | `Assets/_Project/Resources/Fonts/PT_Sans-Web-*.ttf` — текст интерфейса |
