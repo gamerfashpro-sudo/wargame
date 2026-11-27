@@ -341,8 +341,9 @@ def write_report(report: dict, path: Path) -> None:
 
 
 def render_preview(path: Path, target=(0, 0, 1.2), distance=14.0, elev_deg=22.0,
-                   azim_deg=-35.0, res=(1280, 720), samples=48) -> None:
-    """Быстрый превью-рендер Cycles (CPU): небо + солнце + земля."""
+                   azim_deg=-35.0, res=(1280, 720), samples=48, ground_size=200.0) -> None:
+    """Быстрый превью-рендер Cycles (CPU): небо + солнце + земля.
+    ground_size — сторона плоскости земли (для больших моделей и дальней камеры)."""
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
@@ -364,7 +365,7 @@ def render_preview(path: Path, target=(0, 0, 1.2), distance=14.0, elev_deg=22.0,
     sun = bpy.data.objects.new("WG_PreviewSun", sun_data)
     sun.rotation_euler = (math.radians(35), 0, math.radians(-30))
     scene.collection.objects.link(sun)
-    ground = box("WG_PreviewGround", (200, 200, 0.02), (0, 0, -0.011))
+    ground = box("WG_PreviewGround", (ground_size, ground_size, 0.02), (0, 0, -0.011))
     gm = bpy.data.materials.new("WG_PreviewGroundMat")
     gm.use_nodes = True
     gm.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.12, 0.11, 0.08, 1)
