@@ -63,7 +63,28 @@ namespace WG.EditorTools
             }
         }
 
-        static bool NeedsSetup() =>
+        /// <summary>Active Input Handling → Input System Package (1). Возвращает true, если значение изменено (нужен перезапуск).</summary>
+        static bool SetupInputHandling()
+        {
+            var ps = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset").FirstOrDefault();
+            if (ps == null) return false;
+            var so = new SerializedObject(ps);
+            var p = so.FindProperty("activeInputHandler");
+            if (p == null || p.intValue == 1) return false;
+            p.intValue = 1;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.SaveAssets();
+            return true;
+        }
+
+        static bool InputHandlingIsOld()
+        {
+            var ps = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset").FirstOrDefault();
+            var p = ps != null ? new SerializedObject(ps).FindProperty("activeInputHandler") : null;
+            return p != null && p.intValue != 1;
+        }
+
+        static bool NeedsSetup() => InputHandlingIsOld() ||
             !File.Exists(MenuScenePath) || !File.Exists(GameplayScenePath) || !File.Exists(RendererPath) ||
             !File.Exists(RegistryPath) || GraphicsSettings.defaultRenderPipeline == null ||
             !File.Exists(ResMaterialsDir + "/Lit_Base.mat");
@@ -79,13 +100,24 @@ namespace WG.EditorTools
             Step("TextMeshPro", SetupTMP);
             Step("Сцены и Build Settings", SetupScenes);
             Step("Реестр моделей", RefreshModelRegistry);
+            bool restart = false;
+            Step("Система ввода", () => restart = SetupInputHandling());
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("[WARGAME] Настройка проекта завершена. Откройте сцену MainMenu и нажмите Play.");
+            if (restart)
+                EditorApplication.delayCall += () =>
+                {
+                    if (EditorUtility.DisplayDialog("WARGAME",
+                            "Включена новая система ввода (Input System). Нужно перезапустить Unity.\nПерезапустить сейчас?",
+                            "Перезапустить", "Позже"))
+                        EditorApplication.OpenProject(Directory.GetCurrentDirectory());
+                };
         }
 
         static void Step(string name, Action action)
         {
+            Debug.Log($"[WARGAME] → {name}…");
             try { action(); Debug.Log($"[WARGAME] ✔ {name}"); }
             catch (Exception e) { Debug.LogError($"[WARGAME] ✘ {name}: {e}"); }
         }
@@ -277,8 +309,7 @@ namespace WG.EditorTools
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
             m.SetShaderPassEnabled("DepthOnly", false);
             m.SetShaderPassEnabled("ShadowCaster", false);
-            var gui = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(a => a.GetType("UnityEditor.BaseShaderGUI", false)).FirstOrDefault(t => t != null);
+            var gui = Type.GetType("UnityEditor.BaseShaderGUI, Unity.RenderPipelines.Universal.Editor", false);
             var method = gui?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .FirstOrDefault(mi => mi.Name == "SetMaterialKeywords" && mi.GetParameters().Length >= 1);
             if (method != null)
@@ -294,8 +325,7 @@ namespace WG.EditorTools
         static void SetupTMP()
         {
             if (AssetDatabase.FindAssets("t:TMP_Settings").Length > 0) return;
-            var importer = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(a => a.GetType("TMPro.TMP_PackageResourceImporter", false)).FirstOrDefault(t => t != null);
+            var importer = Type.GetType("TMPro.TMP_PackageResourceImporter, Unity.TextMeshPro.Editor", false);
             var method = importer?.GetMethod("ImportResources", BindingFlags.Public | BindingFlags.Static, null,
                 new[] { typeof(bool), typeof(bool), typeof(bool) }, null);
             if (method != null)
