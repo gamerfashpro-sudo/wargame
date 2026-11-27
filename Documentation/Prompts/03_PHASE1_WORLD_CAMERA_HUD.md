@@ -17,6 +17,17 @@
 - Производительность: не обновлять всё каждый кадр, instancing, culling, LOD, пулы.
 - Git: `git pull --rebase origin main` перед push, без force push/reset --hard, коммиты на русском, в конце `Co-Authored-By: Claude <noreply@anthropic.com>`.
 
+## УЖЕ ЕСТЬ ИЗ ЗАДАЧИ 01 — ИСПОЛЬЗУЙ, НЕ ДУБЛИРУЙ
+- `GameBootstrap.GameplaySceneLoaded` (событие `Action<Scene>`): подпишись в `[RuntimeInitializeOnLoadMethod]` своего `GameplayEntry` — тогда временная `GameplayFallbackScene` (в `UI/PauseMenu.cs`) не создаётся. Удали её, когда мир готов.
+- `MainMenuController.BackgroundProvider` (`Func<IMenuBackground>`): присвой свою реализацию кино-фона вместо `SimpleMenuBackground` (`UI/MenuBackdrop.cs`).
+- `SceneAtmosphere` (`UI/MenuBackdrop.cs`): солнце, небо `Resources/Materials/Sky`, туман, Volume (Bloom, ACES, Color Adjustments, Vignette) с вкл/выкл из настроек, `ConfigureCamera(cam)`. Расширяй его/`DayNightCycle` поверх, отдельный AtmosphereSetup не нужен.
+- `PauseMenu` (Esc) уже есть, ставит `Time.timeScale = 0`; `GameClock` должен уважать `PauseMenu.IsOpen` и масштаб времени.
+- `ModelRegistry.Spawn(id, pos, rot, parent)` (null, если модели нет), `MaterialLibrary.Lit(color, smoothness)`, `MaterialLibrary.Template(name)`.
+- `KeyBindings.IsDown/WasPressed(GameAction)`: камера WASD, поворот Q/E, **наклон R/T**, F — к объекту, Shift — ускорение, Space — пауза, 1/2/3 — скорость. Новые действия добавляй в enum `GameAction`, `Defaults` и ключи `key.<Action>` в Localization.
+- `SettingsManager.Current` (camSpeed, zoomSpeed, rotSpeed, smoothing, edgePan, invertZoom/Rotation, viewDistance, hud*, hints, defaultGameSpeed) + событие `SettingsChanged` через `EventBus`.
+- UI: `UIBuilder` (Canvas, Panel, Text/LText, Button, layouts, ScrollArea, InputField), `UITheme` (цвета, шрифты, спрайты Rounded/Gradient/Star/Arrow), `UIButton/UISelector/UIToggle/UISlider/UITabs/UIConfirmDialog`, `LocalizedText`, `AudioManager.PlayUI(UISound.*)`.
+- Материалы: `Resources/Materials/` Lit_Base, Sky, Terrain_Lit, Water, Ghost_Valid, Ghost_Invalid, Unlit_Color; палитра `Art/Materials/WG_*.mat` — создаёт `WARGAME > Setup Project`.
+
 ## ЗАДАЧА
 
 ### 1. Мир (`Scripts/World/`, `Scripts/Weather/`)
@@ -27,17 +38,17 @@
 - Заполнение зон моделями из `ModelRegistry`: столица (Apartment_Block, House_Small), портовый город с причалом и Frigate у берега, промзона (Factory, Warehouse, Power_Plant), военная база (Barracks, Hangar, танки MBT_Main и Truck_Military на стоянке), аэродром (полоса, Hangar, Control_Tower, Fighter_Jet), посёлки. Ориентация по дорогам, без пересечений. На каждом объекте компонент `WorldObject` (id модели, категория, владелец-страна, регион) и коллайдер — для выбора мышью и для Phase 2.
 - Леса и камни: `InstancedFoliage` — меши Tree_Pine/Tree_Broadleaf/Rock_A сливаются и рисуются `Graphics.RenderMeshInstanced` чанками с отсечением по фрустуму и дистанции (из настройки «Дальность прорисовки»), с тенями; плотность по шуму, не на дорогах/зонах/воде/крутых склонах. Тысячи деревьев без просадок.
 - Если модели нет — запасная геометрия, без ошибок.
-- `DayNightCycle`: солнце (Directional Light) по игровому времени, цвет/интенсивность света и окружения, рассвет/день/закат/ночь, туман. `AtmosphereSetup`: Volume с Bloom, Tonemapping ACES, Color Adjustments, Vignette (вкл/выкл из настроек постобработки).
+- `DayNightCycle`: солнце (Directional Light) по игровому времени, цвет/интенсивность света и окружения, рассвет/день/закат/ночь, туман. Атмосфера — через существующий `SceneAtmosphere`.
 - Территории (основа для Phase 2/4): `TerritoryMap` — регионы по зонам (Voronoi по центрам зон), у каждого владелец; стартовое государство игрока владеет столицей. Отображение границ на карте/мини-карте цветом страны.
 
 ### 2. Камера (`Scripts/Camera/`)
-- `RTSCameraController`: движение WASD (клавиши из KeyBindings), у краёв экрана (если включено), зум колесом к точке под курсором, поворот Q/E и средней кнопкой мыши, наклон R/F и мышью, ускорение Shift, плавность (SmoothDamp, сила из настроек), ограничение границами карты и высотой над рельефом, свободный обзор всей карты, «к выбранному объекту» (F / двойной клик) с плавным перелётом, дальность прорисовки из настроек.
+- `RTSCameraController`: движение WASD (клавиши из KeyBindings), у краёв экрана (если включено), зум колесом к точке под курсором, поворот Q/E и средней кнопкой мыши, наклон R/T и мышью, ускорение Shift, плавность (SmoothDamp, сила из настроек), ограничение границами карты и высотой над рельефом, свободный обзор всей карты, «к выбранному объекту» (F / двойной клик) с плавным перелётом, дальность прорисовки из настроек.
 - `SelectionController`: ЛКМ — выбор `WorldObject` (рейкаст), подсветка (кольцо выделения под объектом), событие SelectionChanged; клик по пустому — снять выбор.
 
 ### 3. Игровая сцена и HUD (`Scripts/UI/`)
 - `GameplayEntry`: строит мир по `GameSession` (название и цвет страны, seed), ставит камеру над столицей, запускает `GameClock` (день, часы, скорость 0/1/2/3, пробел — пауза, 1/2/3 — скорость).
 - HUD в стиле UITheme (референс): сверху слева — название государства с цветом и показатели, которые реально существуют сейчас (население — сумма вместимости жилых зданий игрока; остальные ресурсы появятся с экономикой в Phase 2, не показывать выдуманные цифры); сверху справа — день/время, кнопки паузы и скорости, иконка погоды; снизу слева — **мини-карта** (ортографический рендер сверху в RenderTexture, обновление редко, рамка видимой области камеры, клик/перетаскивание — перемещение камеры, границы территорий); панель выбранного объекта (название, тип, владелец, регион); лента уведомлений (toast: приветствие, смена скорости и т. п.); подсказка управления (отключается в настройках «Подсказки»); счётчик FPS (настройка). Видимость элементов — из настроек «Интерфейс».
-- Меню паузы (Esc): Продолжить, Настройки (готовая SettingsPanel), Главное меню (подтверждение), Выход. Пауза останавливает GameClock.
+- Меню паузы уже есть (`PauseMenu`); проверь, что оно останавливает GameClock.
 - Пауза при сворачивании — из настроек.
 
 ### 4. Кино-фон главного меню
